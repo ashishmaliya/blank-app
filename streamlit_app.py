@@ -4,8 +4,8 @@ import streamlit as st
 
 # List of domains to scrape
 domains = [
-    "https://edition.cnn.com/politics/live-news/election-biden-trump-07-13-24/index.html",
-    "https://www.cnn.com"
+    "https://www.bbc.com/news",
+    "https://edition.cnn.com"
 ]
 
 def scrape_from_domain(domain):
@@ -14,26 +14,46 @@ def scrape_from_domain(domain):
         response.raise_for_status()
         soup = BeautifulSoup(response.content, 'html.parser')
         
-        # Example scraping logic - this will need to be customized for each site
-        item = soup.find('div', class_='gs-c-promo')  # Update this based on actual HTML structure of the site
-        if item:
-            title = item.find('h3').text if item.find('h3') else 'N/A'
-            category = 'News'  # Example static category, customize as needed
-            author = 'N/A'  # Author is often not available on main pages, customize as needed
-            content = item.find('p').text if item.find('p') else 'N/A'
-            link = item.find('a')['href'] if item.find('a') else 'N/A'
-            
-            if not link.startswith('http'):
-                link = domain + link  # Handle relative URLs
-            
-            return {
-                'title': title,
-                'category': category,
-                'author': author,
-                'content': content,
-                'link': link,
-                'domain': domain
-            }
+        if "bbc.com" in domain:
+            item = soup.find('div', class_='gs-c-promo')  # Example: Update based on actual HTML structure
+            if item:
+                title = item.find('h3').text if item.find('h3') else 'N/A'
+                category = 'News'  # Static category for example
+                author = 'N/A'  # Not typically available on the main page
+                content = item.find('p').text if item.find('p') else 'N/A'
+                link = item.find('a')['href'] if item.find('a') else 'N/A'
+                if not link.startswith('http'):
+                    link = 'https://www.bbc.com' + link  # Handle relative URLs
+
+                return {
+                    'title': title,
+                    'category': category,
+                    'author': author,
+                    'content': content,
+                    'link': link,
+                    'domain': domain
+                }
+        
+        elif "cnn.com" in domain:
+            item = soup.find('h3', class_='cd__headline')  # Example: Update based on actual HTML structure
+            if item:
+                title = item.text if item else 'N/A'
+                category = 'News'  # Static category for example
+                author = 'N/A'  # Not typically available on the main page
+                content = item.find_next('div', class_='zn-body__paragraph').text if item.find_next('div', class_='zn-body__paragraph') else 'N/A'
+                link = item.find('a')['href'] if item.find('a') else 'N/A'
+                if not link.startswith('http'):
+                    link = 'https://edition.cnn.com' + link  # Handle relative URLs
+
+                return {
+                    'title': title,
+                    'category': category,
+                    'author': author,
+                    'content': content,
+                    'link': link,
+                    'domain': domain
+                }
+
         return None
     except Exception as e:
         st.error(f"Error scraping {domain}: {e}")
