@@ -4,7 +4,7 @@ import streamlit as st
 
 # List of domains to scrape
 domains = [
-    "https://www.bbc.com/news",
+    "https://edition.cnn.com/politics/live-news/election-biden-trump-07-13-24/index.html",
     "https://www.cnn.com"
 ]
 
