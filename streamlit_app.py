@@ -1,5 +1,3 @@
-pip install requests beautifulsoup4 streamlit
-
 import requests
 from bs4 import BeautifulSoup
 import streamlit as st
