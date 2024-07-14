@@ -1,5 +1,5 @@
 import streamlit as st
-from newspaper import Article
+from newspaper3k import Article
 
 def scrape_article(url):
     try:
