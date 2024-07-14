@@ -4,8 +4,8 @@ import streamlit as st
 
 # List of domains to scrape
 domains = [
-    "https://example-news-site1.com",
-    "https://example-news-site2.com"
+    "https://www.bbc.com/news",
+    "https://www.cnn.com"
 ]
 
 def scrape_from_domain(domain):
@@ -14,14 +14,17 @@ def scrape_from_domain(domain):
         response.raise_for_status()
         soup = BeautifulSoup(response.content, 'html.parser')
         
-        # Find the first news item
-        item = soup.find('div', class_='news-item')  # Update this based on actual HTML structure
+        # Example scraping logic - this will need to be customized for each site
+        item = soup.find('div', class_='gs-c-promo')  # Update this based on actual HTML structure of the site
         if item:
-            title = item.find('h2').text
-            category = item.find('span', class_='category').text if item.find('span', class_='category') else 'N/A'
-            author = item.find('span', class_='author').text if item.find('span', 'author') else 'N/A'
-            content = item.find('p', class_='content').text if item.find('p', class_='content') else 'N/A'
-            link = item.find('a')['href']
+            title = item.find('h3').text if item.find('h3') else 'N/A'
+            category = 'News'  # Example static category, customize as needed
+            author = 'N/A'  # Author is often not available on main pages, customize as needed
+            content = item.find('p').text if item.find('p') else 'N/A'
+            link = item.find('a')['href'] if item.find('a') else 'N/A'
+            
+            if not link.startswith('http'):
+                link = domain + link  # Handle relative URLs
             
             return {
                 'title': title,
