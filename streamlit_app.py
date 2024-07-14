@@ -1,24 +1,47 @@
+import requests
+from bs4 import BeautifulSoup
 import streamlit as st
-from newspaper import Article
 
 def scrape_article(url):
     try:
-        article = Article(url)
-        article.download()
-        article.parse()
+        response = requests.get(url)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.content, 'html.parser')
         
         # Extract title
-        title = article.title
+        title = soup.find('h1').text if soup.find('h1') else 'N/A'
 
-        # Extract author
-        authors = ', '.join(article.authors) if article.authors else 'N/A'
+        # Attempt to find author by various common tags and attributes
+        author = None
+        
+        # Common author class names
+        author_tags = soup.find_all(class_='author') + soup.find_all(class_='author-name') + soup.find_all(class_='byline')
+        for tag in author_tags:
+            if tag.text:
+                author = tag.text.strip()
+                break
+        
+        # Meta tags
+        if not author:
+            meta_author = soup.find('meta', attrs={'name': 'author'})
+            if meta_author and meta_author.get('content'):
+                author = meta_author['content'].strip()
 
-        # Extract content
-        content = article.text
+        # Byline links
+        if not author:
+            byline_link = soup.find('a', class_='byline')
+            if byline_link and byline_link.text:
+                author = byline_link.text.strip()
+
+        if not author:
+            author = 'N/A'
+
+        # Combine all paragraphs to get content
+        content = ' '.join(p.text for p in soup.find_all('p'))
 
         return {
             'title': title,
-            'author': authors,
+            'author': author,
             'content': content,
             'url': url
         }
